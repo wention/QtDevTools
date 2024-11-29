@@ -175,11 +175,20 @@ void VideoPlayer::handleError()
 {
     m_playButton->setEnabled(false);
     const QString errorString = m_mediaPlayer->errorString();
-    QString message = "Error: ";
-    if (errorString.isEmpty())
-        message += " #" + QString::number(int(m_mediaPlayer->error()));
-    else
-        message += errorString;
-    qWarning() << "Error: " << m_mediaPlayer->error();
+    const int errorCode = int(m_mediaPlayer->error());
+    const QString errorName = errorCode == QMediaPlayer::NoError ? "NoError"
+                      : errorCode == QMediaPlayer::ResourceError ? "ResourceError"
+                      : errorCode == QMediaPlayer::FormatError ? "FormatError"
+                      : errorCode == QMediaPlayer::NetworkError ? "NetworkError"
+                      : errorCode == QMediaPlayer::AccessDeniedError ? "AccessDeniedError"
+                      : errorCode == QMediaPlayer::ServiceMissingError ? "ServiceMissingError"
+                      : errorCode == QMediaPlayer::MediaIsPlaylist ? "MediaIsPlaylist" : "Unknown Error";
+
+    QString message = QString("Error: %1 (%2 - %3)")
+                          .arg(errorString)
+                          .arg(errorCode)
+                          .arg(errorName);
+
+    qWarning() << message;
     m_errorLabel->setText(message);
 }
